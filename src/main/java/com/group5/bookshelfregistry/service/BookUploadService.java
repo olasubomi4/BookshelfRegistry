@@ -6,4 +6,8 @@ import java.io.IOException;
 
 public interface BookUploadService {
     public String uploadBook(MultipartFile file) ;
+
+    public String updateBook(MultipartFile file, String existingKey);
+
+    public Boolean deleteBook(String existingBookLocation) ;
 }

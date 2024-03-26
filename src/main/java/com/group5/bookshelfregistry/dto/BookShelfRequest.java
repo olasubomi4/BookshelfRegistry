@@ -11,7 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookShelfCreationRequest {
+public class BookShelfRequest {
+    private Long id;
     @NotBlank
     private String isbn;
     @NotBlank

@@ -46,4 +46,28 @@
 //            return null;
 //        }
 //    }
+//    public String updateBook(MultipartFile file, String existingBookLocation) {
+//
+//        if(existingBookLocation!=null) {
+//            if(!deleteBook(existingBookLocation)) {
+//                return null;
+//            }
+//        }
+//        return uploadBook(file);
+//    }
+//
+//    @Override
+//    public Boolean deleteBook(String existingBookLocation) {
+//        try {
+//            if (existingBookLocation != null) {
+//                amazonS3.deleteObject(bucketName, existingBookLocation);
+//                return true;
+//            }
+//            return false;
+//        }
+//        catch (Exception exception) {
+//            return false;
+//        }
+//    }
+//
 //}

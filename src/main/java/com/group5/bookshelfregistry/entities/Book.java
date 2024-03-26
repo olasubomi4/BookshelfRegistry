@@ -20,6 +20,8 @@ public class Book {
     private String title;
     @Column(nullable = false)
     private String author;
+    @Column(nullable = false)
+    private String isbn;
     @ManyToOne(optional = true)
     @JoinColumn(name = "book_category_id", referencedColumnName = "id")
     private BookCategory bookCategory;

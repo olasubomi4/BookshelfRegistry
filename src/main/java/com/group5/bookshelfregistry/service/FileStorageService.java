@@ -32,5 +32,15 @@ public class FileStorageService implements BookUploadService{
             e.printStackTrace();
             return null;
         }
+
+    }
+    @Override
+    public String updateBook(MultipartFile file, String existingKey) {
+        return "test";
+    }
+
+    @Override
+    public Boolean deleteBook(String existingBookLocation){
+        return null;
     }
 }
