@@ -1,5 +1,6 @@
 package com.group5.bookshelfregistry.dto;
 
+import com.group5.bookshelfregistry.dto.bookshelf.response.BookShelfResponseData;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 

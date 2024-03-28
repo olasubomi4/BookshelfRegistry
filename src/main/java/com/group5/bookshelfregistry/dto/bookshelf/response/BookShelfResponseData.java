@@ -1,26 +1,22 @@
-package com.group5.bookshelfregistry.dto;
+package com.group5.bookshelfregistry.dto.bookshelf.response;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-@Data
+@lombok.Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookShelfRequest {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BookShelfResponseData {
     private Long id;
-    @NotBlank
     private String isbn;
-    @NotBlank
     private String title;
     private String description;
-    @NotBlank
     private String author;
     private Long categoryId;
-    private MultipartFile book;
+    private String bookLocation;
 }
 

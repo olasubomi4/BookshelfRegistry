@@ -22,7 +22,6 @@ public class FileExtensionValidator implements ConstraintValidator<AllowedFileEx
         }
         String fileName = file.getOriginalFilename();
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-//        return Arrays.asList(allowedExtensions).contains(fileExtension);
-        return false;
+        return Arrays.asList(allowedExtensions).contains(fileExtension);
     }
 }

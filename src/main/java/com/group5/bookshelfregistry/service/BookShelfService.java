@@ -1,6 +1,6 @@
 package com.group5.bookshelfregistry.service;
 
-import com.group5.bookshelfregistry.dto.BookShelfRequest;
+import com.group5.bookshelfregistry.dto.bookshelf.request.BookShelfRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 

@@ -41,6 +41,6 @@ public class FileStorageService implements BookUploadService{
 
     @Override
     public Boolean deleteBook(String existingBookLocation){
-        return null;
+        return true;
     }
 }
