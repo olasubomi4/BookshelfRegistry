@@ -43,10 +43,4 @@ public class BookCategoryController {
         bookCategoryRequest.setId(id);
         return bookCategoryService.updateBookCategory(bookCategoryRequest);
     }
-
-    @NoAuth
-    @DeleteMapping({"/{id}"})
-    public ResponseEntity<?> deleteBookCategory(@PathVariable("id") Long id) {
-        return bookCategoryService.deleteBookCategory(id);
-    }
 }
