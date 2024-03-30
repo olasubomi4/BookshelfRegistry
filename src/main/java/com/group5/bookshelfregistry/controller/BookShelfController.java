@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +21,7 @@ public class BookShelfController {
     @Autowired
     private BookShelfService bookShelfService;
 
-    @NoAuth
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createBook (@RequestParam("book")  @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book, @RequestParam("isbn") String isbn,
                                          @RequestParam("title") String title , @RequestParam("description") String description,
@@ -29,8 +30,7 @@ public class BookShelfController {
                 .title(title).description(description).categoryId(categoryId).author(author) .build();
         return bookShelfService.createBookShelf(bookShelfRequest);
     }
-
-    @NoAuth
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateBook (@RequestParam(value = "book",required = false) @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book, @RequestParam(value="isbn" ,required = false) String isbn,
                                          @RequestParam(value="title",required = false) String title , @RequestParam(value="description",required = false) String description,
@@ -40,7 +40,7 @@ public class BookShelfController {
         return bookShelfService.updateBookShelf(bookShelfRequest);
     }
 
-    @NoAuth
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping({"/{id}"})
     public ResponseEntity<?> deleteBook (@PathVariable(value="id") Long id) {
         BookShelfRequest bookShelfRequest = BookShelfRequest.builder().id(id).build();

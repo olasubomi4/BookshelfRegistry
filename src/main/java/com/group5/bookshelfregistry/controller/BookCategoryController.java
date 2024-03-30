@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +17,7 @@ public class BookCategoryController {
 
     @Autowired
     BookCategoryService bookCategoryService;
-    @NoAuth
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createBookCategory(@RequestBody BookCategoryRequest bookCategoryRequest) {
         return bookCategoryService.createBookCategory(bookCategoryRequest);
@@ -37,7 +38,7 @@ public class BookCategoryController {
         return bookCategoryService.getBookCategories(bookCategoryRequest,page);
     }
 
-    @NoAuth
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping({"/{id}"})
     public ResponseEntity<?> updateBookCategory(@PathVariable("id") Long id, @RequestBody @Valid BookCategoryRequest bookCategoryRequest) {
         bookCategoryRequest.setId(id);

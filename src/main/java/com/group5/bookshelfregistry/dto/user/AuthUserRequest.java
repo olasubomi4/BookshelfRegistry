@@ -1,4 +1,4 @@
-package com.group5.bookshelfregistry.dto;
+package com.group5.bookshelfregistry.dto.user;
 
 import com.group5.bookshelfregistry.dto.bookshelf.response.BookShelfResponseData;
 import jakarta.validation.constraints.NotBlank;

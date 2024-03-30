@@ -18,12 +18,12 @@ public class SecurityUtility {
 
     private UserRepository userRepository;
 
-    public User getCurrentlyLoggedInUsername() {
+    public Optional<User> getCurrentlyLoggedInUsername() {
     Authentication authentication = Optional.ofNullable(SecurityContextHolder.getContext())
             .map(SecurityContext::getAuthentication).orElse(null);
     String username= (authentication != null && authentication.getPrincipal() != null)?authentication.getName()
        :null;
-    return userRepository.findByUsername(username).orElse(null);
+    return userRepository.findByUsername(username);
 
     }
 }

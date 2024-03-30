@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @Transactional
 public interface IBookRepository extends CrudRepository<Book,Long> {
+    public Optional<Book> findFirstByTitle(String title);
 
     @Query("SELECT b FROM Book b " +
             "WHERE (:categoryId IS NULL OR b.bookCategory = :categoryId) " +

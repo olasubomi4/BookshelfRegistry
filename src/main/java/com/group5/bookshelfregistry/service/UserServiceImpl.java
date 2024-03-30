@@ -2,6 +2,7 @@ package com.group5.bookshelfregistry.service;
 
 
 import com.group5.bookshelfregistry.entities.User;
+import com.group5.bookshelfregistry.exceptions.DuplicateUserException;
 import com.group5.bookshelfregistry.exceptions.EntityNotFoundException;
 import com.group5.bookshelfregistry.repositories.UserRepository;
 import org.apache.logging.log4j.LogManager;
@@ -12,13 +13,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.group5.bookshelfregistry.enums.ResponseDefinition.USER_ALREADY_EXIST;
+
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-//    private EntityUtility entityUtility;
-
     private BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
     private static Logger log = LogManager.getLogger(UserServiceImpl.class);
 
@@ -32,10 +33,9 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
     
         if (doesUserExist(user.getUsername())) {
-//            log.info(ResponseMessages.USER_ALREADY_EXIST.getResponseMessage());
-//            throw new DuplicateUserException(ResponseMessages.USER_ALREADY_EXIST.getResponseMessage());
+            log.info(USER_ALREADY_EXIST.getMessage());
+            throw new DuplicateUserException(USER_ALREADY_EXIST.getMessage());
         }
-//        user.setId(entityUtility.generateSequence(User.SEQUENCE_NAME));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -48,12 +48,10 @@ public class UserServiceImpl implements UserService {
     Boolean doesUserExist(String username)
     {
         Optional<User> user = userRepository.findByUsername(username);
-        if(user.isPresent())
-        {
+        if(user.isPresent()) {
             return true;
         }
-        else
-        {
+        else {
             return false;
         }
     }

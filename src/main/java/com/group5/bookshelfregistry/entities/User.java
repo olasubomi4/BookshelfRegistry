@@ -2,12 +2,9 @@ package com.group5.bookshelfregistry.entities;
 
 
 import com.group5.bookshelfregistry.annotations.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.springframework.data.annotation.Transient;
 
 
 @Entity
@@ -17,12 +14,15 @@ import org.springframework.data.annotation.Transient;
 @NoArgsConstructor
 public class User {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@Column(unique = true,nullable = false)
+	@NotBlank(message = "Username cannot be blank")
 	private String username;
 
 	@Column(nullable = false)
+	@NotBlank(message = "Password cannot be blank")
 	private String password;
 
 	@Column(nullable = false)

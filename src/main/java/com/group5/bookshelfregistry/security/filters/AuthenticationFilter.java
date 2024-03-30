@@ -3,7 +3,7 @@ package com.group5.bookshelfregistry.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.group5.bookshelfregistry.dto.AuthUserRequest;
+import com.group5.bookshelfregistry.dto.user.AuthUserRequest;
 import com.group5.bookshelfregistry.entities.User;
 import com.group5.bookshelfregistry.repositories.UserRepository;
 import com.group5.bookshelfregistry.security.SecurityConstants;

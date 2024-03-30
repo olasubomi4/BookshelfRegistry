@@ -1,6 +1,5 @@
 package com.group5.bookshelfregistry.exceptions;
 
-import com.group5.bookshelfregistry.entities.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
@@ -19,9 +18,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.webjars.NotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -31,71 +27,65 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException( RuntimeException ex) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Request Could not be processed at the moment",errors);
-        return ResponseEntity.internalServerError().body(errorResponse);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        problemDetail.setTitle("Request Could not be processed at the moment");
+        return ResponseEntity.internalServerError().body(problemDetail);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(@NotNull AccessDeniedException ex) {
-
-        ErrorResponse errorResponse = new ErrorResponse("Access denied Error",Arrays.asList(ex.getMessage()));
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);    }
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problemDetail.setTitle("Access denied Error");
+        return new ResponseEntity<>(problemDetail, HttpStatus.FORBIDDEN);    }
 
     @ExceptionHandler( {DuplicateUserException.class})
     public ResponseEntity<?> handleDuplicateUserException(@NotNull DuplicateUserException ex) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Duplicate user Error",errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Duplicate user Error");
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @ExceptionHandler({CardServiceVerificationException.class})
     public ResponseEntity<Object> handleCardServiceException(@NotNull CardServiceVerificationException ex) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Request Could not be processed at the moment",errors);
-        return ResponseEntity.internalServerError().body(errorResponse);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        problemDetail.setTitle("Request Could not be processed at the moment");
+        return ResponseEntity.internalServerError().body(problemDetail);
     }
 
     @Override
     public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Not Found",errors);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Not Found");
+        return new ResponseEntity<>(problemDetail, HttpStatus.NOT_FOUND);
     }
 
     @Override
     public ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Method Not Allowed",errors);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
+        problemDetail.setTitle("Method Not Allowed");
+        return new ResponseEntity<>(problemDetail, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFoundException(NotFoundException ex) {
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Not found", errors);
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Not found");
+        return new ResponseEntity<>(problemDetail, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        List<String> errors = new ArrayList<>();
-        errors.add("Invalid parameter value: " + ex.getName()+" "+ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Invalid data type Error",errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+        String errorMessage="Invalid parameter value: " + ex.getName()+" "+ex.getMessage();
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
+        problemDetail.setTitle("Invalid data type Error");
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @ExceptionHandler( {ConstraintViolationException.class})
     public ResponseEntity<?> constraintViolationException(ConstraintViolationException ex, WebRequest request) {
-        List<String> errors = new ArrayList<>();
-        ex.getConstraintViolations().forEach(cv -> errors.add(cv.getMessage()));
-        ErrorResponse errorResponse = new ErrorResponse("Validation Error",errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+        String errorMessage=ex.getConstraintViolations().stream().findFirst().map(cv->cv.getMessage()).orElse(null);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
+        problemDetail.setTitle("Validation Error");
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @Override
@@ -117,10 +107,10 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
                                                                        HttpHeaders headers, HttpStatusCode status,
                                                                        WebRequest request) {
         String paramName = ex.getParameterName();
-        List<String> errors = new ArrayList<>();
-        errors.add("Required parameter '" + paramName + "' is missing.");
-        ErrorResponse errorResponse = new ErrorResponse("Missing parameter Error",errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,"Required parameter '" + paramName + "' is missing.");
+
+        problemDetail.setTitle("Missing parameter Error");
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @Override
@@ -130,19 +120,22 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
             HttpStatusCode status,
             WebRequest request) {
         // Get the validation errors
-        List<String> errors = ex.getBindingResult()
+        String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
-                .stream()
+                .stream().findFirst()
                 .map(FieldError::getDefaultMessage)
-                .toList();
-        ErrorResponse errorResponse = new ErrorResponse("Validation Error",errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+                .get();
+
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
+        problemDetail.setTitle("Validation Error");
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(RuntimeException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Resource not found",Arrays.asList(ex.getMessage()));
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("resource not found");
+        return new ResponseEntity<>(problemDetail, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {

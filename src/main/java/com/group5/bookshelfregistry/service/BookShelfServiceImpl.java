@@ -14,10 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.webjars.NotFoundException;
+
 import java.util.Optional;
 
-import static com.group5.bookshelfregistry.enums.ResponseDefinition.FAILED_UNABLE_TO_DELETE_BOOK;
-import static com.group5.bookshelfregistry.enums.ResponseDefinition.SUCCESSFUL;
+import static com.group5.bookshelfregistry.enums.ResponseDefinition.*;
 
 @Service
 @AllArgsConstructor
@@ -92,7 +93,11 @@ public class BookShelfServiceImpl implements BookShelfService{
 
     @Override
     public ResponseEntity<?> getBookShelf(BookShelfRequest bookShelfRequest) {
-        Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
+//            BaseResponse baseResponse = BaseResponse.builder()
+//                    .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
+//            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
+//        };
         BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
                 SUCCESSFUL.getSuccessful()).data(existingBook).build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
@@ -109,7 +114,9 @@ public class BookShelfServiceImpl implements BookShelfService{
                 bookShelfRequest.getIsbn(),
                 pageable);
         if(books.isEmpty()) {
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            BaseResponse baseResponse = BaseResponse.builder()
+                    .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
+            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(books);
 
@@ -128,7 +135,12 @@ public class BookShelfServiceImpl implements BookShelfService{
 
     @Override
     public ResponseEntity<?> deleteBookShelf(BookShelfRequest bookShelfRequest) {
-        Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
+//        if(existingBook==null) {
+//            BaseResponse baseResponse = BaseResponse.builder()
+//                    .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
+//            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
+//        };
         if (existingBook.getBookLocation() != null) {
             if(!bookUploadService.deleteBook(existingBook.getBookLocation())){
                 BaseResponse baseResponse = BaseResponse.builder().message(FAILED_UNABLE_TO_DELETE_BOOK.getMessage())
