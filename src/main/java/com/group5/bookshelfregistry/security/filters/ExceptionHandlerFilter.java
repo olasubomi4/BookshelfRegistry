@@ -1,7 +1,6 @@
 package com.group5.bookshelfregistry.security.filters;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.group5.bookshelfregistry.entities.ErrorResponse;
 import com.group5.bookshelfregistry.exceptions.EntityNotFoundException;
 import com.group5.bookshelfregistry.exceptions.InvalidCredentialsException;
 import jakarta.servlet.FilterChain;

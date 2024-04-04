@@ -24,5 +24,8 @@ public class Book {
     @JoinColumn(name = "book_category_id", referencedColumnName = "id",nullable = true)
     private BookCategory bookCategory;
 
+    @Column(name = "book_location")
     private String bookLocation;
+    @Column(name = "book_image_location")
+    private String bookImageLocation;
 }

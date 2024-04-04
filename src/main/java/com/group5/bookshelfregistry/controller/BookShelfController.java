@@ -23,20 +23,20 @@ public class BookShelfController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createBook (@RequestParam("book")  @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book, @RequestParam("isbn") String isbn,
+    public ResponseEntity<?> createBook (@RequestParam("book")  @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book,@RequestParam(value = "bookImage") @AllowedFileExtension(value = {"jpeg", "png","jpg"}) MultipartFile bookImage, @RequestParam("isbn") String isbn,
                                          @RequestParam("title") String title , @RequestParam("description") String description,
                                          @RequestParam("categoryId") @Nullable Long categoryId , @RequestParam("author") String author) {
         BookShelfRequest bookShelfRequest = BookShelfRequest.builder().book(book).isbn(isbn)
-                .title(title).description(description).categoryId(categoryId).author(author) .build();
+                .title(title).description(description).categoryId(categoryId).author(author).bookImage(bookImage).build();
         return bookShelfService.createBookShelf(bookShelfRequest);
     }
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateBook (@RequestParam(value = "book",required = false) @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book, @RequestParam(value="isbn" ,required = false) String isbn,
+    public ResponseEntity<?> updateBook (@RequestParam(value = "book",required = false) @AllowedFileExtension(value = {"pdf", "doc", "docx"}) MultipartFile book,@RequestParam(value = "bookImage",required = false) @AllowedFileExtension(value = {"jpeg", "png","jpg"}) MultipartFile bookImage, @RequestParam(value="isbn" ,required = false) String isbn,
                                          @RequestParam(value="title",required = false) String title , @RequestParam(value="description",required = false) String description,
                                          @RequestParam(value = "categoryId",required = false) Long categoryId , @RequestParam(value="author",required = false) String author,@RequestParam(value="id") Long id) {
         BookShelfRequest bookShelfRequest = BookShelfRequest.builder().id(id).book(book).isbn(isbn)
-                .title(title).description(description).categoryId(categoryId).author(author).build();
+                .title(title).description(description).categoryId(categoryId).author(author).bookImage(bookImage).build();
         return bookShelfService.updateBookShelf(bookShelfRequest);
     }
 

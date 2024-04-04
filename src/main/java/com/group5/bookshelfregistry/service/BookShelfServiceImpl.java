@@ -30,10 +30,11 @@ public class BookShelfServiceImpl implements BookShelfService{
     public ResponseEntity<?> createBookShelf(BookShelfRequest bookShelfRequest) {
         try {
             BookCategory bookCategory = getBookCategoryById(bookShelfRequest.getCategoryId());
-            String bookFilesUrl = bookUploadService.uploadBook(bookShelfRequest.getBook());
+            String bookFilesUrl = bookUploadService.upload(bookShelfRequest.getBook());
+            String bookImageUrl=bookUploadService.upload(bookShelfRequest.getBookImage());
             Book book = Book.builder().bookCategory(bookCategory).author(bookShelfRequest.getAuthor()).description
                     (bookShelfRequest.getDescription()).title(bookShelfRequest.getTitle()).bookLocation(
-                    bookFilesUrl).isbn(bookShelfRequest.getIsbn()).build();
+                    bookFilesUrl).isbn(bookShelfRequest.getIsbn()).bookImageLocation(bookImageUrl).build();
             iBookRepository.save(book);
 
             BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
@@ -54,8 +55,12 @@ public class BookShelfServiceImpl implements BookShelfService{
 
 
            if (bookShelfRequest.getBook() != null) {
-               String bookFilesUrl = bookUploadService.updateBook(bookShelfRequest.getBook(), existingBook.getBookLocation());
+               String bookFilesUrl = bookUploadService.update(bookShelfRequest.getBook(), existingBook.getBookLocation());
                existingBook.setBookLocation(bookFilesUrl);
+           }
+           if (bookShelfRequest.getBookImage() != null) {
+               String bookImageFileUrl = bookUploadService.update(bookShelfRequest.getBookImage(), existingBook.getBookImageLocation());
+               existingBook.setBookImageLocation(bookImageFileUrl);
            }
 
            if (bookShelfRequest.getIsbn() != null) {
@@ -94,10 +99,6 @@ public class BookShelfServiceImpl implements BookShelfService{
     @Override
     public ResponseEntity<?> getBookShelf(BookShelfRequest bookShelfRequest) {
         Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
-//            BaseResponse baseResponse = BaseResponse.builder()
-//                    .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
-//            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
-//        };
         BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
                 SUCCESSFUL.getSuccessful()).data(existingBook).build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
@@ -136,13 +137,16 @@ public class BookShelfServiceImpl implements BookShelfService{
     @Override
     public ResponseEntity<?> deleteBookShelf(BookShelfRequest bookShelfRequest) {
         Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
-//        if(existingBook==null) {
-//            BaseResponse baseResponse = BaseResponse.builder()
-//                    .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
-//            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
-//        };
         if (existingBook.getBookLocation() != null) {
-            if(!bookUploadService.deleteBook(existingBook.getBookLocation())){
+            if(!bookUploadService.delete(existingBook.getBookLocation())){
+                BaseResponse baseResponse = BaseResponse.builder().message(FAILED_UNABLE_TO_DELETE_BOOK.getMessage())
+                        .success(FAILED_UNABLE_TO_DELETE_BOOK.getSuccessful()).data(existingBook).build();
+                return new ResponseEntity<>(baseResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        if (existingBook.getBookImageLocation() != null) {
+            if(!bookUploadService.delete(existingBook.getBookImageLocation())){
                 BaseResponse baseResponse = BaseResponse.builder().message(FAILED_UNABLE_TO_DELETE_BOOK.getMessage())
                         .success(FAILED_UNABLE_TO_DELETE_BOOK.getSuccessful()).data(existingBook).build();
                 return new ResponseEntity<>(baseResponse, HttpStatus.INTERNAL_SERVER_ERROR);

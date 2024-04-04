@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,22 +25,23 @@ public class S3ServiceImpl implements  BookUploadService {
     @Value("${aws.secretKey}")
     private String accessKeyId;
 
-
-
     private final AmazonS3 amazonS3;
 
     public S3ServiceImpl() {
         this.amazonS3 =  AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKeyId, secretKey))).withRegion(Regions.EU_WEST_2)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_KEY")))).withRegion(Regions.EU_WEST_2)
                 .build();
     }
 
-    public String uploadBook(MultipartFile file) {
+    public String upload(MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        String key = "documents/" + fileName+UUID.randomUUID();
+        String key = "documents/" +UUID.randomUUID() +"_"+fileName;
 
         try {
-            amazonS3.putObject(new PutObjectRequest(bucketName, key, file.getInputStream(), null)
+            ObjectMetadata metadata = new ObjectMetadata();
+            // Compliant: specifies the content length of the stream.
+            metadata.setContentLength(file.getSize());
+            amazonS3.putObject(new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
             URL url = amazonS3.getUrl(bucketName, key);
 
@@ -49,18 +51,18 @@ public class S3ServiceImpl implements  BookUploadService {
             return null;
         }
     }
-    public String updateBook(MultipartFile file, String existingBookLocation) {
+    public String update(MultipartFile file, String existingBookLocation) {
 
         if(existingBookLocation!=null) {
-            if(!deleteBook(existingBookLocation)) {
+            if(!delete(existingBookLocation)) {
                 return null;
             }
         }
-        return uploadBook(file);
+        return upload(file);
     }
 
     @Override
-    public Boolean deleteBook(String existingBookLocation) {
+    public Boolean delete(String existingBookLocation) {
         try {
             if (existingBookLocation != null) {
                 AmazonS3URI key= new AmazonS3URI(existingBookLocation);

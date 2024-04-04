@@ -22,5 +22,6 @@ public class BookShelfRequest {
     private String author;
     private Long categoryId;
     private MultipartFile book;
+    private MultipartFile bookImage;
 }
 

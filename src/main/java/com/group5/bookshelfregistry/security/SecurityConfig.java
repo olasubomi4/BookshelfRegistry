@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(SecurityConstants.AUTH_WHITELIST).permitAll()
                 .anyRequest()
                 .authenticated())
+
                 .addFilterBefore(new ExceptionHandlerFilter(),AuthenticationFilter.class )
                 .addFilter(authenticationFilter)
                 .addFilterAfter(new JWTAuthorizationFilter(secretKey,tokenExpiration,reqMap), AuthenticationFilter.class)
