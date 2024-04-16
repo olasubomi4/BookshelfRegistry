@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/api/reading-progress")
+@RequestMapping("api/v1/reading-progress")
 public class ReadingProgressController {
 
     @Autowired

@@ -12,7 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/api/book-category")
+@RequestMapping("api/v1/book-category")
 public class BookCategoryController {
 
     @Autowired

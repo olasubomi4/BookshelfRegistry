@@ -13,12 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class BookShelfRequest {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "isbn must not be null")
     private String isbn;
-    @NotBlank
+    @NotBlank(message = "title must not be null")
     private String title;
     private String description;
-    @NotBlank
+    @NotBlank(message = "author must not be null")
     private String author;
     private Long categoryId;
     private MultipartFile book;

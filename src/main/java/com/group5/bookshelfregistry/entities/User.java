@@ -1,6 +1,7 @@
 package com.group5.bookshelfregistry.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group5.bookshelfregistry.annotations.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +24,7 @@ public class User {
 
 	@Column(nullable = false)
 	@NotBlank(message = "Password cannot be blank")
+	@JsonIgnore
 	private String password;
 
 	@Column(nullable = false)

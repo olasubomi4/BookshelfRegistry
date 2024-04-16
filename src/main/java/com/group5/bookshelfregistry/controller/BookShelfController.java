@@ -3,8 +3,11 @@ package com.group5.bookshelfregistry.controller;
 import com.group5.bookshelfregistry.annotations.AllowedFileExtension;
 import com.group5.bookshelfregistry.annotations.NoAuth;
 import com.group5.bookshelfregistry.dto.bookshelf.request.BookShelfRequest;
+import com.group5.bookshelfregistry.dto.reserveBook.ReserveBookRequest;
 import com.group5.bookshelfregistry.service.BookShelfService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,11 +18,21 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("v1/api/book-shelf")
+@RequestMapping("api/v1/book-shelf")
 public class BookShelfController {
 
     @Autowired
     private BookShelfService bookShelfService;
+
+    @Operation(summary = "Reserve a Book",
+            description = "This endpoint is used to reserve a book for a user. This endpoint requires a book id " +
+                    "to be passed")
+    @PreAuthorize("hasAnyRole('VIEWER','ADMIN')")
+    @PostMapping(value = "reserve-book",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> reserveBook (@RequestBody ReserveBookRequest reserveBookRequest) {
+        return bookShelfService.reserveBook(reserveBookRequest);
+    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -65,5 +78,7 @@ public class BookShelfController {
         Pageable page= PageRequest.of(offset,limit);
         return bookShelfService.getBookShelfs(bookShelfRequest,page);
     }
+
+
 
 }

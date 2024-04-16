@@ -2,6 +2,10 @@ package com.group5.bookshelfregistry.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import java.util.Date;
+
 
 @Entity
 @Table(name = "book")
@@ -28,4 +32,27 @@ public class Book {
     private String bookLocation;
     @Column(name = "book_image_location")
     private String bookImageLocation;
+
+    @CreatedDate
+    private Date createAt;
+
+    @LastModifiedDate
+    private Date updatedAt;
+
+    @ManyToOne
+    private User createdBy;
+
+    @ManyToOne(optional = true,cascade = CascadeType.PERSIST)
+    private User deletedBy;
+
+    @PrePersist
+    protected void prePersist() {
+        this.createAt=new Date();
+        this.updatedAt=createAt;
+    }
+
+    @PreUpdate
+    protected void preUpdate() {
+        this.updatedAt=new Date();
+    }
 }

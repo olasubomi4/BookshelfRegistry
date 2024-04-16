@@ -1,5 +1,6 @@
 package com.group5.bookshelfregistry.exceptions;
 
+import com.group5.bookshelfregistry.dto.BaseResponse;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +30,7 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
     public ResponseEntity<Object> handleRuntimeException( RuntimeException ex) {
         ProblemDetail problemDetail= ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         problemDetail.setTitle("Request Could not be processed at the moment");
+//        BaseResponse baseResponse= BaseResponse.builder().data(problemDetail).success(false).message().build();
         return ResponseEntity.internalServerError().body(problemDetail);
     }
 

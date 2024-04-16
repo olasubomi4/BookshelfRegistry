@@ -2,10 +2,14 @@ package com.group5.bookshelfregistry.service;
 
 import com.group5.bookshelfregistry.dto.bookshelf.request.BookShelfRequest;
 import com.group5.bookshelfregistry.dto.BaseResponse;
+import com.group5.bookshelfregistry.dto.reserveBook.ReserveBookRequest;
 import com.group5.bookshelfregistry.entities.Book;
 import com.group5.bookshelfregistry.entities.BookCategory;
+import com.group5.bookshelfregistry.entities.ReservedBook;
+import com.group5.bookshelfregistry.entities.User;
 import com.group5.bookshelfregistry.repositories.IBookCategoryRepository;
 import com.group5.bookshelfregistry.repositories.IBookRepository;
+import com.group5.bookshelfregistry.repositories.IReservedBookRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -26,15 +30,20 @@ public class BookShelfServiceImpl implements BookShelfService{
     IBookCategoryRepository iBookCategoryRepository;
     IBookRepository iBookRepository;
     BookUploadService bookUploadService;
+    UserService userServiceImpl;
+    IReservedBookRepository reservedBookRepository;
     @Override
     public ResponseEntity<?> createBookShelf(BookShelfRequest bookShelfRequest) {
         try {
             BookCategory bookCategory = getBookCategoryById(bookShelfRequest.getCategoryId());
             String bookFilesUrl = bookUploadService.upload(bookShelfRequest.getBook());
             String bookImageUrl=bookUploadService.upload(bookShelfRequest.getBookImage());
+            User user= userServiceImpl.getCurrentlyLoggedInUsername().orElseThrow(() -> new NotFoundException(FAILED_TO_RETRIEVED_USER.getMessage()));
             Book book = Book.builder().bookCategory(bookCategory).author(bookShelfRequest.getAuthor()).description
                     (bookShelfRequest.getDescription()).title(bookShelfRequest.getTitle()).bookLocation(
-                    bookFilesUrl).isbn(bookShelfRequest.getIsbn()).bookImageLocation(bookImageUrl).build();
+                    bookFilesUrl).isbn(bookShelfRequest.getIsbn()).bookImageLocation(bookImageUrl)
+                    .createdBy(user)
+                    .build();
             iBookRepository.save(book);
 
             BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
@@ -52,7 +61,6 @@ public class BookShelfServiceImpl implements BookShelfService{
     public ResponseEntity<?> updateBookShelf(BookShelfRequest bookShelfRequest) {
        try {
            Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
 
            if (bookShelfRequest.getBook() != null) {
                String bookFilesUrl = bookUploadService.update(bookShelfRequest.getBook(), existingBook.getBookLocation());
@@ -137,6 +145,8 @@ public class BookShelfServiceImpl implements BookShelfService{
     @Override
     public ResponseEntity<?> deleteBookShelf(BookShelfRequest bookShelfRequest) {
         Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
+        User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElseThrow(() ->
+                new NotFoundException(FAILED_TO_RETRIEVED_USER.getMessage()));
         if (existingBook.getBookLocation() != null) {
             if(!bookUploadService.delete(existingBook.getBookLocation())){
                 BaseResponse baseResponse = BaseResponse.builder().message(FAILED_UNABLE_TO_DELETE_BOOK.getMessage())
@@ -153,11 +163,21 @@ public class BookShelfServiceImpl implements BookShelfService{
             }
         }
 
+        existingBook.setDeletedBy(currentUser);
         iBookRepository.delete(existingBook);
         BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
                 SUCCESSFUL.getSuccessful()).data(existingBook).build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
-
     }
 
+    @Override
+    public ResponseEntity<?> reserveBook(ReserveBookRequest reserveBookRequest) {
+            Book existingBook = iBookRepository.findById(reserveBookRequest.getBookId()).orElseThrow(() -> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
+            User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElseThrow(() -> new NotFoundException(FAILED_TO_RETRIEVED_USER.getMessage()));
+            ReservedBook reservedBook = ReservedBook.builder().book(existingBook).user(currentUser).build();
+            reservedBookRepository.save(reservedBook);
+            BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFULLY_RESERVED_BOOK.getMessage()).success(
+                    SUCCESSFULLY_RESERVED_BOOK.getSuccessful()).data(reservedBook).build();
+            return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
 }

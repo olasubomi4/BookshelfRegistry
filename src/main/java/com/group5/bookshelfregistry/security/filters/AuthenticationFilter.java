@@ -4,6 +4,7 @@ package com.group5.bookshelfregistry.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.group5.bookshelfregistry.dto.user.AuthUserRequest;
+import com.group5.bookshelfregistry.dto.user.AuthUserResponse;
 import com.group5.bookshelfregistry.entities.User;
 import com.group5.bookshelfregistry.repositories.UserRepository;
 import com.group5.bookshelfregistry.security.SecurityConstants;
@@ -14,6 +15,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -80,7 +82,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .withClaim("roles",roles)
                 .withExpiresAt(new Date(System.currentTimeMillis() + tokenExpiration))
                 .sign(Algorithm.HMAC512(secretKey));
+        AuthUserResponse authUserResponse= AuthUserResponse.builder().token(SecurityConstants.BEARER+token).tokenExpiration(tokenExpiration).build();
+        response.setContentType("application/json");
         response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
+        response.getWriter().write(new JSONObject(authUserResponse).toString());
+        response.getWriter().flush();
     }
 
     private String getUserRole(AuthUserRequest authUserRequest) {

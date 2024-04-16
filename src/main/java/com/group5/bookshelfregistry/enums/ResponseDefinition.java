@@ -11,6 +11,10 @@ public enum ResponseDefinition {
 
     UNABLE_TO_RETRIEVE_USER_READING_PROGRESS("Unable to retrieve user reading progress",false),
 
+    SUCCESSFULLY_RETRIEVED_USER("Successfully retrieved user details",true),
+    FAILED_TO_RETRIEVED_USER("Failed to retrieve user details",false),
+    SUCCESSFULLY_RESERVED_BOOK("Successfully reserved book",true),
+    FAILED_TO_RESERVED_BOOK("Failed to reserve book",false),
 
     USER_ALREADY_EXIST("User already exist",false);
     private String message;

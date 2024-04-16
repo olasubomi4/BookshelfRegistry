@@ -2,6 +2,7 @@ package com.group5.bookshelfregistry.repositories;
 
 import com.group5.bookshelfregistry.entities.Book;
 import com.group5.bookshelfregistry.entities.BookCategory;
+import com.group5.bookshelfregistry.entities.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,8 @@ import java.util.Optional;
 @Transactional
 public interface IBookRepository extends CrudRepository<Book,Long> {
     public Optional<Book> findFirstByTitle(String title);
+    public Long countByCreatedBy(User user);
+    public Long countByDeletedBy(User user);
 
     @Query("SELECT b FROM Book b " +
             "WHERE (:categoryId IS NULL OR b.bookCategory = :categoryId) " +

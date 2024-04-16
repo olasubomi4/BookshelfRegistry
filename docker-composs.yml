@@ -1,0 +1,23 @@
+version: '4'
+services:
+  spring-app:
+    image: bookshelfregistry:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - docker-mysql
+    environment:
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_URI=${DB_URI}
+      - DB_PASSWORD=${DB_PASSWORD}
+  docker-mysql:
+    image: mysql:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: ${db}
+    container_name: subomiDb
+    ports:
+      - "3308:3306"
