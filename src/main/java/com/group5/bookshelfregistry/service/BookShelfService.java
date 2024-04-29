@@ -12,6 +12,7 @@ public interface BookShelfService {
     public ResponseEntity<?> getBookShelf(BookShelfRequest bookShelfRequest);
     public ResponseEntity<?> getBookShelfs(BookShelfRequest bookShelfRequest, Pageable pageable);
 
+    public ResponseEntity<?> getReservedBooks( Pageable pageable);
     public ResponseEntity<?> reserveBook(ReserveBookRequest reserveBookRequest);
 
 

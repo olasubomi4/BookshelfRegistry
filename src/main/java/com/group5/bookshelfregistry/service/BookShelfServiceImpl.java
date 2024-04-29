@@ -2,6 +2,7 @@ package com.group5.bookshelfregistry.service;
 
 import com.group5.bookshelfregistry.dto.bookshelf.request.BookShelfRequest;
 import com.group5.bookshelfregistry.dto.BaseResponse;
+import com.group5.bookshelfregistry.dto.bookshelf.response.BookShelfResponseData;
 import com.group5.bookshelfregistry.dto.reserveBook.ReserveBookRequest;
 import com.group5.bookshelfregistry.entities.Book;
 import com.group5.bookshelfregistry.entities.BookCategory;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.webjars.NotFoundException;
 
-import java.util.Optional;
+import java.util.*;
 
 import static com.group5.bookshelfregistry.enums.ResponseDefinition.*;
 
@@ -107,6 +108,13 @@ public class BookShelfServiceImpl implements BookShelfService{
     @Override
     public ResponseEntity<?> getBookShelf(BookShelfRequest bookShelfRequest) {
         Book existingBook = iBookRepository.findById(bookShelfRequest.getId()).orElseThrow(()-> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
+        User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElse(null);
+        if(currentUser!=null) {
+            ReservedBook reservedBook = getReservedBookByUser(existingBook, currentUser);
+            if(reservedBook!=null) {
+                existingBook.setReservedTime(reservedBook.getReservationTime());
+            }
+        }
         BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
                 SUCCESSFUL.getSuccessful()).data(existingBook).build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
@@ -127,8 +135,63 @@ public class BookShelfServiceImpl implements BookShelfService{
                     .message(BOOK_NOT_FOUND.getMessage()).success(BOOK_NOT_FOUND.getSuccessful()).build();
             return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok(books);
+        User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElse(null);
+        if (currentUser != null) {
+            // Fetch all reserved books for the current user
+            Map<Long, ReservedBook> reservedBooksMap = getReservedBooksMapForUser(currentUser);
 
+            // Update book information with reserved time
+            for (Book book : books) {
+                ReservedBook reservedBook = reservedBooksMap.get(book.getId());
+                if (reservedBook != null) {
+                    book.setReservedTime(reservedBook.getReservationTime());
+                }
+            }
+        }
+//        List<BookShelfResponseData > bookShelfResponseDataList= new ArrayList<>();
+//        if(currentUser!=null) {
+//            for (Book book : books) {
+//                ReservedBook reservedBook = getReservedBookByUser(book, currentUser);
+//                if(reservedBook!=null) {
+//                    book.setReservedTime(reservedBook.getReservationTime());
+////                    BookShelfResponseData bookShelfResponseData = convertToBookShelfResponseData(book, reservedBook);
+////                    bookShelfResponseDataList.add(bookShelfResponseData);
+//                }
+//            }
+//        }
+        BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
+                SUCCESSFUL.getSuccessful()).data(books).build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+
+    }
+    private ReservedBook getReservedBookByUser(Book book, User user) {
+        ReservedBook reservedBook = reservedBookRepository.findByUserAndBook(user,book);
+        return reservedBook;
+    }
+
+    private Map<Long, ReservedBook> getReservedBooksMapForUser(User user) {
+        // Fetch all reserved books for the current user in a single query
+        List<ReservedBook> reservedBooks = reservedBookRepository.findByUser(user);
+        Map<Long, ReservedBook> reservedBooksMap = new HashMap<>();
+        for (ReservedBook reservedBook : reservedBooks) {
+            reservedBooksMap.put(reservedBook.getBook().getId(), reservedBook);
+        }
+        return reservedBooksMap;
+    }
+
+    @Override
+    public ResponseEntity<?> getReservedBooks(Pageable pageable) {
+        User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElseThrow(() ->
+                new NotFoundException(FAILED_TO_RETRIEVED_USER.getMessage()));
+        Page<ReservedBook> reservedBooks = reservedBookRepository.findAllByUser(currentUser,pageable);
+        if(reservedBooks.isEmpty()) {
+            BaseResponse baseResponse = BaseResponse.builder()
+                    .message(RESERVED_BOOKS_NOT_FOUND.getMessage()).success(RESERVED_BOOKS_NOT_FOUND.getSuccessful()).build();
+            return new ResponseEntity<>(baseResponse, HttpStatus.NOT_FOUND);
+        }
+        BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFUL.getMessage()).success(
+                SUCCESSFUL.getSuccessful()).data(reservedBooks).build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
     }
 
     private BookCategory getBookCategoryById(Long id) {
@@ -174,6 +237,13 @@ public class BookShelfServiceImpl implements BookShelfService{
     public ResponseEntity<?> reserveBook(ReserveBookRequest reserveBookRequest) {
             Book existingBook = iBookRepository.findById(reserveBookRequest.getBookId()).orElseThrow(() -> new NotFoundException(BOOK_NOT_FOUND.getMessage()));
             User currentUser = userServiceImpl.getCurrentlyLoggedInUsername().orElseThrow(() -> new NotFoundException(FAILED_TO_RETRIEVED_USER.getMessage()));
+
+            ReservedBook existingReservedBook= reservedBookRepository.findByUserAndBook(currentUser,existingBook);
+            if(existingReservedBook!=null) {
+                BaseResponse baseResponse = BaseResponse.builder()
+                        .message(FAILED_TO_RESERVE_ALREADY_RESERVED_BOOK.getMessage()).success(FAILED_TO_RESERVE_ALREADY_RESERVED_BOOK.getSuccessful()).build();
+                return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+            }
             ReservedBook reservedBook = ReservedBook.builder().book(existingBook).user(currentUser).build();
             reservedBookRepository.save(reservedBook);
             BaseResponse baseResponse = BaseResponse.builder().message(SUCCESSFULLY_RESERVED_BOOK.getMessage()).success(

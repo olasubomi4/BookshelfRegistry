@@ -7,7 +7,6 @@ import com.group5.bookshelfregistry.dto.reserveBook.ReserveBookRequest;
 import com.group5.bookshelfregistry.service.BookShelfService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +30,16 @@ public class BookShelfController {
     @PostMapping(value = "reserve-book",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> reserveBook (@RequestBody ReserveBookRequest reserveBookRequest) {
         return bookShelfService.reserveBook(reserveBookRequest);
+    }
+
+    @Operation(summary = "Get Books reserved by this user",
+            description = "This endpoint is used to get all the books reserved by the currently logged-in user.")
+    @PreAuthorize("hasAnyRole('VIEWER','ADMIN')")
+    @GetMapping(value = "reserve-book")
+    public ResponseEntity<?> getReserveBooks (@RequestParam(value = "limit",defaultValue = "10") int limit,@RequestParam
+            (value = "offset",defaultValue = "0") int offset) {
+        Pageable page= PageRequest.of(offset,limit);
+        return bookShelfService.getReservedBooks(page);
     }
 
 
@@ -60,14 +69,16 @@ public class BookShelfController {
         return bookShelfService.deleteBookShelf(bookShelfRequest);
     }
 
-    @NoAuth
+//    @NoAuth
+    @PreAuthorize("hasAnyRole('VIEWER','ADMIN')")
     @GetMapping({"/{id}"})
     public ResponseEntity<?> getBook (@PathVariable("id") Long id) {
         BookShelfRequest bookShelfRequest = BookShelfRequest.builder().id(id).build();
         return bookShelfService.getBookShelf(bookShelfRequest);
     }
 
-    @NoAuth
+//    @NoAuth
+    @PreAuthorize("hasAnyRole('VIEWER','ADMIN')")
     @GetMapping
     public ResponseEntity<?> getBooks (@RequestParam(value="categoryId", required = false) Long categoryId,@RequestParam(value="author",required = false) String author,
                                        @RequestParam(value="title",required = false) String title,@RequestParam(value="isbn",required = false) String isbn,

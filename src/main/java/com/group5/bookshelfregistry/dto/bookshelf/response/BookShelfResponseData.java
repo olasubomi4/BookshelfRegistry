@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @lombok.Data
 @Builder
 @AllArgsConstructor
@@ -18,5 +20,7 @@ public class BookShelfResponseData {
     private String author;
     private Long categoryId;
     private String bookLocation;
+    private String bookImageLocation;
+    private Date reservationTime;
 }
 

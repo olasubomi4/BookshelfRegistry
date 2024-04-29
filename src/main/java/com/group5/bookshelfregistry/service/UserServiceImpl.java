@@ -62,7 +62,12 @@ public class UserServiceImpl implements UserService {
                 .map(SecurityContext::getAuthentication).orElse(null);
         String username= (authentication != null && authentication.getPrincipal() != null)?authentication.getName()
                 :null;
-        return Optional.ofNullable(getUser(username));
+        try {
+            return Optional.ofNullable(getUser(username));
+        }
+        catch (EntityNotFoundException entityNotFoundException) {
+            return Optional.ofNullable(null);
+        }
     }
 
 

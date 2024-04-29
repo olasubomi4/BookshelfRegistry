@@ -16,6 +16,10 @@ public enum ResponseDefinition {
     SUCCESSFULLY_RESERVED_BOOK("Successfully reserved book",true),
     FAILED_TO_RESERVED_BOOK("Failed to reserve book",false),
 
+    FAILED_TO_RESERVE_ALREADY_RESERVED_BOOK("Failed to reserve already reserved book",false),
+
+    RESERVED_BOOKS_NOT_FOUND("Unable to find books reserved by the current user",false),
+
     USER_ALREADY_EXIST("User already exist",false);
     private String message;
     private Boolean successful;

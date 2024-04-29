@@ -45,6 +45,9 @@ public class Book {
     @ManyToOne(optional = true,cascade = CascadeType.PERSIST)
     private User deletedBy;
 
+    @Transient
+    private Date reservedTime;
+
     @PrePersist
     protected void prePersist() {
         this.createAt=new Date();
